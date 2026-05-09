@@ -1,0 +1,23 @@
+{
+  "name": "skills-create-applications-with-the-copilot-cli",
+  "version": "1.0.0",
+  "description": "Node.js CLI calculator exercise",
+  "main": "src/calculator.js",
+  "scripts": {
+    "test": "jest --runInBand"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/punicoro/skills-create-applications-with-the-copilot-cli.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/punicoro/skills-create-applications-with-the-copilot-cli/issues"
+  },
+  "homepage": "https://github.com/punicoro/skills-create-applications-with-the-copilot-cli#readme",
+  "devDependencies": {
+    "jest": "^30.4.2"
+  }
+}
