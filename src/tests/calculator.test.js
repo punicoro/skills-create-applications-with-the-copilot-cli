@@ -3,6 +3,9 @@ const {
   subtract,
   multiply,
   divide,
+  modulo,
+  power,
+  squareRoot,
   normalizeOperation,
   parseNumber,
   calculate,
@@ -27,6 +30,38 @@ describe("calculator arithmetic functions", () => {
 
   test("throws for division by zero", () => {
     expect(() => divide(20, 0)).toThrow("Division by zero is not allowed.");
+  });
+
+  test("returns the remainder using modulo", () => {
+    expect(modulo(10, 3)).toBe(1);
+  });
+
+  test("returns the remainder from the extended-operations example", () => {
+    expect(modulo(5, 2)).toBe(1);
+  });
+
+  test("throws for modulo by zero", () => {
+    expect(() => modulo(10, 0)).toThrow("Modulo by zero is not allowed.");
+  });
+
+  test("raises a base to an exponent", () => {
+    expect(power(2, 8)).toBe(256);
+  });
+
+  test("raises a base to an exponent from the extended-operations example", () => {
+    expect(power(2, 3)).toBe(8);
+  });
+
+  test("returns the square root of a number", () => {
+    expect(squareRoot(81)).toBe(9);
+  });
+
+  test("returns the square root from the extended-operations example", () => {
+    expect(squareRoot(16)).toBe(4);
+  });
+
+  test("rejects square root of a negative number", () => {
+    expect(() => squareRoot(-1)).toThrow("Square root is not defined for negative numbers.");
   });
 });
 
@@ -95,9 +130,71 @@ describe("calculate", () => {
     expect(calculate("7", "x", "6").result).toBe(42);
   });
 
+  test("calculates modulo", () => {
+    expect(calculate("10", "%", "3")).toMatchObject({
+      left: 10,
+      right: 3,
+      operator: "%",
+      operation: "modulo",
+      result: 1,
+    });
+  });
+
+  test("calculates modulo from the extended-operations example", () => {
+    expect(calculate("5", "%", "2")).toMatchObject({
+      left: 5,
+      right: 2,
+      operator: "%",
+      operation: "modulo",
+      result: 1,
+    });
+  });
+
+  test("calculates power", () => {
+    expect(calculate("2", "**", "8")).toMatchObject({
+      left: 2,
+      right: 8,
+      operator: "**",
+      operation: "power",
+      result: 256,
+    });
+  });
+
+  test("calculates power with ^ from the extended-operations example", () => {
+    expect(calculate("2", "^", "3")).toMatchObject({
+      left: 2,
+      right: 3,
+      operator: "^",
+      operation: "power",
+      result: 8,
+    });
+  });
+
+  test("calculates square root", () => {
+    expect(calculate("sqrt", "81")).toMatchObject({
+      operand: 81,
+      operator: "sqrt",
+      operation: "square root",
+      result: 9,
+    });
+  });
+
+  test("calculates square root from the extended-operations example", () => {
+    expect(calculate("sqrt", "16")).toMatchObject({
+      operand: 16,
+      operator: "sqrt",
+      operation: "square root",
+      result: 4,
+    });
+  });
+
+  test("accepts square-root as a square root alias", () => {
+    expect(calculate("square-root", "16").result).toBe(4);
+  });
+
   test("rejects unsupported operations", () => {
-    expect(() => calculate("2", "%", "3")).toThrow(
-      'Unsupported operation: "%". Use addition, subtraction, multiplication, or division.',
+    expect(() => calculate("2", "unknown", "3")).toThrow(
+      'Unsupported operation: "unknown". Use addition, subtraction, multiplication, division, modulo, power, or square root.',
     );
   });
 
@@ -115,5 +212,25 @@ describe("calculate", () => {
 
   test("rejects division by zero", () => {
     expect(() => calculate("8", "/", "0")).toThrow("Division by zero is not allowed.");
+  });
+
+  test("rejects modulo by zero", () => {
+    expect(() => calculate("8", "%", "0")).toThrow("Modulo by zero is not allowed.");
+  });
+
+  test("rejects square root of a negative number", () => {
+    expect(() => calculate("sqrt", "-9")).toThrow(
+      "Square root is not defined for negative numbers.",
+    );
+  });
+
+  test("rejects invalid square root input", () => {
+    expect(() => calculate("sqrt", "not-a-number")).toThrow(
+      'Invalid number: "not-a-number". Please provide a valid number.',
+    );
+  });
+
+  test("rejects missing operand for binary operations", () => {
+    expect(() => calculate("+", "2")).toThrow('Operation "+" expects 2 numbers.');
   });
 });
