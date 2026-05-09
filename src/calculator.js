@@ -168,7 +168,9 @@ async function promptForMissingValues() {
   try {
     const firstNumber = await rl.question("First number: ");
     const operation = await rl.question("Operation (+, -, *, /, %, ^, sqrt): ");
-    const secondNumber = await rl.question("Second number: ");
+    const normalizedOperation = normalizeOperation(operation);
+    const requiresSecondNumber = !OPERATIONS[normalizedOperation]?.unary;
+    const secondNumber = requiresSecondNumber ? await rl.question("Second number: ") : undefined;
 
     return [firstNumber, operation, secondNumber];
   } finally {
