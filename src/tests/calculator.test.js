@@ -3,6 +3,9 @@ const {
   subtract,
   multiply,
   divide,
+  modulo,
+  power,
+  squareRoot,
   normalizeOperation,
   parseNumber,
   calculate,
@@ -27,6 +30,26 @@ describe("calculator arithmetic functions", () => {
 
   test("throws for division by zero", () => {
     expect(() => divide(20, 0)).toThrow("Division by zero is not allowed.");
+  });
+
+  test("returns modulo for two numbers", () => {
+    expect(modulo(10, 3)).toBe(1);
+  });
+
+  test("throws for modulo by zero", () => {
+    expect(() => modulo(10, 0)).toThrow("Modulo by zero is not allowed.");
+  });
+
+  test("returns power for base and exponent", () => {
+    expect(power(2, 3)).toBe(8);
+  });
+
+  test("returns square root for positive number", () => {
+    expect(squareRoot(16)).toBe(4);
+  });
+
+  test("throws for square root of negative number", () => {
+    expect(() => squareRoot(-1)).toThrow("Square root of a negative number is not allowed.");
   });
 });
 
@@ -95,9 +118,39 @@ describe("calculate", () => {
     expect(calculate("7", "x", "6").result).toBe(42);
   });
 
+  test("calculates modulo", () => {
+    expect(calculate("10", "%", "3")).toMatchObject({
+      left: 10,
+      right: 3,
+      operator: "%",
+      operation: "modulo",
+      result: 1,
+    });
+  });
+
+  test("calculates power", () => {
+    expect(calculate("2", "^", "4")).toMatchObject({
+      left: 2,
+      right: 4,
+      operator: "^",
+      operation: "power",
+      result: 16,
+    });
+  });
+
+  test("calculates square root", () => {
+    expect(calculate("9", "sqrt")).toMatchObject({
+      left: 9,
+      right: undefined,
+      operator: "sqrt",
+      operation: "square root",
+      result: 3,
+    });
+  });
+
   test("rejects unsupported operations", () => {
-    expect(() => calculate("2", "%", "3")).toThrow(
-      'Unsupported operation: "%". Use addition, subtraction, multiplication, or division.',
+    expect(() => calculate("2", "&", "3")).toThrow(
+      'Unsupported operation: "&". Use addition, subtraction, multiplication, division, modulo, power, or square root.',
     );
   });
 
@@ -115,5 +168,15 @@ describe("calculate", () => {
 
   test("rejects division by zero", () => {
     expect(() => calculate("8", "/", "0")).toThrow("Division by zero is not allowed.");
+  });
+
+  test("rejects modulo by zero", () => {
+    expect(() => calculate("8", "%", "0")).toThrow("Modulo by zero is not allowed.");
+  });
+
+  test("rejects square root of negative number", () => {
+    expect(() => calculate("-4", "sqrt")).toThrow(
+      "Square root of a negative number is not allowed.",
+    );
   });
 });

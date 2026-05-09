@@ -8,6 +8,9 @@ const { stdin: input, stdout: output } = require("node:process");
 // subtraction (-)
 // multiplication (*, x)
 // division (/)
+// modulo (%)
+// power (^)
+// square root (sqrt)
 const OPERATIONS = {
   "+": {
     label: "addition",
@@ -29,6 +32,24 @@ const OPERATIONS = {
     label: "division",
     calculate: divide,
   },
+  "%": {
+    label: "modulo",
+    calculate: modulo,
+  },
+  "^": {
+    label: "power",
+    calculate: power,
+  },
+  sqrt: {
+    label: "square root",
+    calculate: squareRoot,
+    unary: true,
+  },
+  squareroot: {
+    label: "square root",
+    calculate: squareRoot,
+    unary: true,
+  },
   addition: {
     label: "addition",
     calculate: add,
@@ -44,6 +65,14 @@ const OPERATIONS = {
   division: {
     label: "division",
     calculate: divide,
+  },
+  modulo: {
+    label: "modulo",
+    calculate: modulo,
+  },
+  power: {
+    label: "power",
+    calculate: power,
   },
 };
 
@@ -67,6 +96,26 @@ function divide(left, right) {
   return left / right;
 }
 
+function modulo(left, right) {
+  if (right === 0) {
+    throw new Error("Modulo by zero is not allowed.");
+  }
+
+  return left % right;
+}
+
+function power(base, exponent) {
+  return base ** exponent;
+}
+
+function squareRoot(value) {
+  if (value < 0) {
+    throw new Error("Square root of a negative number is not allowed.");
+  }
+
+  return Math.sqrt(value);
+}
+
 function normalizeOperation(operation) {
   return operation.trim().toLowerCase();
 }
@@ -87,26 +136,30 @@ function calculate(leftInput, operationInput, rightInput) {
 
   if (!operation) {
     throw new Error(
-      `Unsupported operation: "${operationInput}". Use addition, subtraction, multiplication, or division.`,
+      `Unsupported operation: "${operationInput}". Use addition, subtraction, multiplication, division, modulo, power, or square root.`,
     );
   }
 
   const left = parseNumber(leftInput, "first number");
-  const right = parseNumber(rightInput, "second number");
+  const right = operation.unary ? undefined : parseNumber(rightInput, "second number");
+  const result = operation.unary ? operation.calculate(left) : operation.calculate(left, right);
 
   return {
     left,
     right,
     operator: operationInput,
     operation: operation.label,
-    result: operation.calculate(left, right),
+    result,
   };
 }
 
 function printUsage() {
-  console.log("Usage: node src/calculator.js <first-number> <operation> <second-number>");
+  console.log("Usage: node src/calculator.js <first-number> <operation> [second-number]");
   console.log("Example: node src/calculator.js 8 + 2");
-  console.log("Supported operations: +, -, *, /, addition, subtraction, multiplication, division");
+  console.log("Square root example: node src/calculator.js 9 sqrt");
+  console.log(
+    "Supported operations: +, -, *, /, %, ^, sqrt, addition, subtraction, multiplication, division, modulo, power, squareroot",
+  );
 }
 
 async function promptForMissingValues() {
@@ -114,7 +167,7 @@ async function promptForMissingValues() {
 
   try {
     const firstNumber = await rl.question("First number: ");
-    const operation = await rl.question("Operation (+, -, *, /): ");
+    const operation = await rl.question("Operation (+, -, *, /, %, ^, sqrt): ");
     const secondNumber = await rl.question("Second number: ");
 
     return [firstNumber, operation, secondNumber];
@@ -125,13 +178,17 @@ async function promptForMissingValues() {
 
 async function main() {
   const args = process.argv.slice(2);
-  const values = args.length === 3 ? args : await promptForMissingValues();
+  const values = args.length >= 2 && args.length <= 3 ? args : await promptForMissingValues();
 
   try {
     const calculation = calculate(values[0], values[1], values[2]);
-    console.log(
-      `${calculation.left} ${calculation.operator} ${calculation.right} = ${calculation.result}`,
-    );
+    if (calculation.right === undefined) {
+      console.log(`${calculation.operator} ${calculation.left} = ${calculation.result}`);
+    } else {
+      console.log(
+        `${calculation.left} ${calculation.operator} ${calculation.right} = ${calculation.result}`,
+      );
+    }
     console.log(`Operation: ${calculation.operation}`);
   } catch (error) {
     console.error(error.message);
@@ -150,6 +207,9 @@ module.exports = {
   subtract,
   multiply,
   divide,
+  modulo,
+  power,
+  squareRoot,
   normalizeOperation,
   parseNumber,
   calculate,
